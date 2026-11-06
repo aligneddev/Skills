@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "aligneddev-skills",
+  "description": "Claude Code skills and agents from aligneddev.",
+  "owner": {
+    "name": "aligneddev",
+    "url": "https://github.com/aligneddev"
+  },
+  "plugins": [
+    {
+      "name": "explore-implement-review",
+      "description": "A three-agent pipeline for code changes: a read-only explorer scouts, an implementer builds test-first without seeing your standards, and a reviewer who owns the standards gates the commit.",
+      "source": "./plugins/explore-implement-review",
+      "category": "development"
+    }
+  ]
+}

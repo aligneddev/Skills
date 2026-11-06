@@ -1,0 +1,13 @@
+{
+  "name": "explore-implement-review",
+  "version": "1.0.0",
+  "description": "Explorer, implementer and reviewer subagents plus the skill that orchestrates them: scout, build test-first, review against your standards, then commit.",
+  "author": {
+    "name": "aligneddev",
+    "url": "https://github.com/aligneddev"
+  },
+  "homepage": "https://github.com/aligneddev/Skills",
+  "repository": "https://github.com/aligneddev/Skills",
+  "license": "MIT",
+  "keywords": ["agents", "code-review", "tdd", "workflow", "coding-standards"]
+}
