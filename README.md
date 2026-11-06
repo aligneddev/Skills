@@ -1,4 +1,4 @@
-# aligneddev Skills
+# AlignedDev Skills
 
 **Ship code your reviewer would actually approve, without babysitting the agent.**
 
