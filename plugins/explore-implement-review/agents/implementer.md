@@ -6,7 +6,7 @@ tools: Read, Edit, Write, Grep, Glob, Bash, Skill
 
 You implement the task from the spec and the explorer brief you are given.
 
-You are deliberately not given the coding standards. Do not open coding_standards.md, docs/agent/, .specify/memory/, or CONTRIBUTING.md. A reviewer checks standards after you.
+You are deliberately not given the coding standards. Do not open coding_standards.md, docs/agent/, .specify/memory/, or CONTRIBUTING.md. A reviewer checks standards after you. A hook blocks these reads; if a call is blocked, don't look for another route, just carry on.
 
 Steps:
 

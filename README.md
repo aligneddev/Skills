@@ -20,17 +20,17 @@ explore-implement-review splits the job so each agent has one job and a clean co
 | Agent | Does | Can't |
 |---|---|---|
 | 🔎 **explorer** | Finds the spec, the files to touch, their callers, tests, fixtures, and the build/test commands. Hands back a brief under 400 words with `file:line` refs. | Edit anything. |
-| 🛠️ **implementer** | Builds the change test-first (red → green → refactor), runs the suite, fixes review findings, commits when told. | See your coding standards. On purpose. |
+| 🛠️ **implementer** | Builds the change test-first (red → green → refactor), runs the suite, fixes review findings, commits when told. | See your coding standards. On purpose, and a hook blocks it. |
 | ⚖️ **reviewer** | Owns the standards. Reviews the diff on two axes, **Standards** and **Spec**, and ends with `VERDICT: PASS` or `VERDICT: CHANGES REQUESTED`. | Edit anything. |
 
-Your main Claude session orchestrates: pin a commit → explore → implement → review → fix loop (max 3 rounds) → commit with a Conventional Commits message → retro.
+Your main Claude session orchestrates: pin a commit and check for leaked standards → explore → implement → review → fix loop (max 3 rounds) → commit with a Conventional Commits message → retro, when the run needed 2+ review rounds.
 
 **What you get:**
 
 - ✅ **A real review gate.** The reviewer never wrote the code, so it has nothing to defend.
 - 🧪 **Tests first, every time.** The implementer drives the change with tests.
 - 🎯 **Spec, not vibes.** Every review checks the diff against the task's spec, not just style.
-- 🔁 **Standards that get better.** After each commit, a retro turns repeat findings into rules (or lint checks) and trims rules nobody uses.
+- 🔁 **Standards that get better.** After a run that needed more than one review round, a retro turns repeat findings into rules (or lint checks) and trims rules nobody uses.
 - 🧹 **Small, focused contexts.** Each agent sees only what it needs.
 
 Inspired by [Matt Pocock's video](https://youtu.be/LlgiOCmFG_w) on separating implementation from review.
@@ -67,10 +67,10 @@ The pipeline uses `mattpocock-skills` for `tdd`, `code-review` and `retro`, so i
 
 ## Set up your repo (once)
 
-The whole trick is that **only the reviewer reads the standards**. Anything an agent auto-loads leaks them to the implementer, so:
+The whole trick is that **only the reviewer reads the standards**. The plugin's hook stops the implementer opening them, but anything an agent auto-loads leaks them anyway, so:
 
 1. **Write your standards** in `coding_standards.md` at the repo root. The reviewer also reads `docs/agent/*.md`, `.specify/memory/constitution.md` and `CONTRIBUTING.md` if they exist.
-2. **Strip rules out of auto-loaded files**: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.cursorrules`. Keep project intro and run commands there; move the rules into `coding_standards.md`.
+2. **Strip rules out of auto-loaded files**: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.cursorrules`. Keep project intro and run commands there; move the rules into `coding_standards.md`. Every run checks these files at the start and reports any leaks it finds; it never edits them.
 3. **Optional: override the agents.** Copy any of `plugins/explore-implement-review/agents/*.md` into your repo's `.claude/agents/` to hardcode your build commands or change the reviewer's sources. The skill prefers repo agents over the plugin's.
 
 The skill's own Setup section has the full checklist, including Spec Kit.
@@ -92,14 +92,14 @@ or call it directly:
 What happens next:
 
 ```text
-📌 pin       a1b2c3d
+📌 pin       a1b2c3d, no leaks in auto-loaded files
 🔎 explore   brief: 6 files, 2 test files, `npm test`, `dotnet test`
 🛠️ implement 3 tests added, all green
 ⚖️ review    CHANGES REQUESTED: 1 must-fix (missing null check, coding_standards.md §4)
 🛠️ fix       done, tests green
 ⚖️ review    PASS
 ✅ commit    feat: add CSV export to rides page (e4f5a6b)
-🔁 retro     run /mattpocock-skills:retro to tune your standards
+🔁 retro     2 rounds: run /mattpocock-skills:retro to tune your standards
 ```
 
 ## What's inside
@@ -112,13 +112,17 @@ plugins/explore-implement-review/
   agents/explorer.md                     read-only scout
   agents/implementer.md                  test-first builder
   agents/reviewer.md                     standards owner, PASS/CHANGES REQUESTED
+  hooks/guard-standards.sh               blocks the implementer from the standards
+GLOSSARY.md                              the pipeline's vocabulary
 ```
 
 ## FAQ
 
 **Does it work without `mattpocock-skills`?** The agents still run, but the implementer loses its TDD loop and the reviewer its two-axis review. Install it.
 
-**Can the implementer cheat and read the standards?** The agents are told not to; it's an instruction, not a sandbox. Keeping standards out of auto-loaded files is what makes it hold.
+**Can the implementer cheat and read the standards?** Not by accident. A `PreToolUse` hook denies the implementer any Read, Grep, Glob, Edit or Write on the standards files, and any Bash command that names them. It's a guardrail, not a sandbox: a Bash command that reaches them without naming them, or a repo-wide search that matches lines inside them, still gets through. Keeping standards out of auto-loaded files matters just as much, and the hook can't help there.
+
+**I added my own standards source. Is it guarded?** The hook only knows the four default sources. Add yours to the exclusion lists in your overridden `implementer.md` and `explorer.md`.
 
 **Will it push or open a PR?** No. It commits to your current branch and stops.
 
