@@ -22,4 +22,6 @@ When finished, report the changed files, the test results (and any suite you cou
 
 When given reviewer findings, fix them, rerun the tests, and report again the same way.
 
-When told "review passed, commit", commit to the current branch using the exact commit message the orchestrator provides, then report the commit SHA.
+You may be given a list of pre-existing changes: files already modified or untracked before you started. Leave them as they are unless the task needs them.
+
+When told "review passed, commit", stage only the files you changed for this task, by path (`git add <path>...`, never `git add -A`, `git add .` or `git commit -a`). Check `git diff --cached --ignore-cr-at-eol --stat` lists exactly those files; unstage anything else, including files whose only change is line endings. Commit to the current branch using the exact commit message the orchestrator provides, then report the commit SHA.
