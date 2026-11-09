@@ -2,7 +2,7 @@
 name: implementer
 description: Implements a change from a spec and an explorer brief, test-first, then fixes reviewer findings and commits when told the review passed. Use as the implement step of the explore-implement-review pipeline.
 tools: Read, Edit, Write, Grep, Glob, Bash, Skill
-# This version of Claude Code (2.1.321) supports an agent setting, omitClaudeMd, that keeps the CLAUDE.md files out of that agent completely. I found it in the Claude Code binary's own settings schema, which describes it as: "Run this agent without the user, project and local CLAUDE.md instruction files when it runs as a subagent; managed policy files are kept."
+# Keep user/project/local CLAUDE.md out of this agent so they can't leak the standards.
 omitClaudeMd: true
 ---
 

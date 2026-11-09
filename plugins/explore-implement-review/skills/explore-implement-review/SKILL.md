@@ -11,7 +11,7 @@ Subagents cannot call each other, so you (the main session) orchestrate and rela
 
 Background: [Matt Pocock's video](https://youtu.be/LlgiOCmFG_w).
 
-The implementer must not learn the coding standards; only the reviewer reads them. Any agent file a tool auto-loads leaks them.
+The implementer must not learn the coding standards; only the reviewer reads them. The explorer and implementer set `omitClaudeMd: true`, so Claude Code loads no user, project or local `CLAUDE.md` into them; repo overrides need that line too. Files other tools auto-load (`AGENTS.md`, `.github/copilot-instructions.md`, `.cursorrules`) can still leak them, and so can a `CLAUDE.md` the explorer reads for commands.
 
 1. Put the standards in `coding_standards.md` at the repo root. The reviewer reads it plus `docs/agent/*.md`, `.specify/memory/constitution.md` and `CONTRIBUTING.md`. For other sources, copy the plugin's `agents/reviewer.md` into `.claude/agents/` and edit its list.
 2. Clean up `AGENTS.md` (auto-loaded by Codex/Copilot-style agents): keep only the project intro, environment/run commands, the "Agent skills" section, and the speckit `SPECKIT START/END` plan pointer. Remove coding rules and links to standards docs; don't link `coding_standards.md` from it.

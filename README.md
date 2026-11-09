@@ -67,7 +67,7 @@ The pipeline uses `mattpocock-skills` for `tdd`, `code-review` and `retro`, so i
 
 ## Set up your repo (once)
 
-The whole trick is that **only the reviewer reads the standards**. The plugin's hook stops the implementer opening them, but anything an agent auto-loads leaks them anyway, so:
+The whole trick is that **only the reviewer reads the standards**. The plugin's hook stops the implementer opening them, and the explorer and implementer run without any `CLAUDE.md` (`omitClaudeMd: true`). Files other tools auto-load still leak them, so:
 
 1. **Write your standards** in `coding_standards.md` at the repo root. The reviewer also reads `docs/agent/*.md`, `.specify/memory/constitution.md` and `CONTRIBUTING.md` if they exist.
 2. **Strip rules out of auto-loaded files**: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.cursorrules`. Keep project intro and run commands there; move the rules into `coding_standards.md`. Every run checks these files at the start and reports any leaks it finds; it never edits them.
@@ -120,7 +120,7 @@ GLOSSARY.md                              the pipeline's vocabulary
 
 **Does it work without `mattpocock-skills`?** The agents still run, but the implementer loses its TDD loop and the reviewer its two-axis review. Install it.
 
-**Can the implementer cheat and read the standards?** Not by accident. A `PreToolUse` hook denies the implementer any Read, Grep, Glob, Edit or Write on the standards files, and any Bash command that names them. It's a guardrail, not a sandbox: a Bash command that reaches them without naming them, or a repo-wide search that matches lines inside them, still gets through. Keeping standards out of auto-loaded files matters just as much, and the hook can't help there.
+**Can the implementer cheat and read the standards?** Not by accident. A `PreToolUse` hook denies the implementer any Read, Grep, Glob, Edit or Write on the standards files, and any Bash command that names them. It's a guardrail, not a sandbox: a Bash command that reaches them without naming them, or a repo-wide search that matches lines inside them, still gets through. Auto-loaded files are the other route. In Claude Code, the explorer and implementer set `omitClaudeMd: true`, so no user, project or local `CLAUDE.md` reaches them (your global instructions included); if you override either agent, keep that line. Files other tools auto-load, like `AGENTS.md` and `.github/copilot-instructions.md`, still need their rules stripped.
 
 **I added my own standards source. Is it guarded?** The hook only knows the four default sources. Add yours to the exclusion lists in your overridden `implementer.md` and `explorer.md`.
 
