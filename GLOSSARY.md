@@ -30,6 +30,14 @@ _Avoid_: Coder, builder, developer agent
 The commit recorded before work starts, against which the reviewer diffs.
 _Avoid_: Base, baseline, starting commit
 
+**Pre-existing changes**:
+The paths already modified or untracked at the Fixed point, which the implementer leaves out of its commit and the reviewer leaves out of its review.
+_Avoid_: Dirty files, local changes
+
+**Override drift**:
+Plugin agent instructions missing from a repo's own copy of that agent in `.claude/agents/`, because plugin updates never reach the copy.
+_Avoid_: Stale override, out of sync
+
 **Review round**:
 One reviewer pass over the diff since the Fixed point, ending in a Verdict.
 _Avoid_: Iteration, cycle, pass

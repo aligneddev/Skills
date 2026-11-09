@@ -67,11 +67,11 @@ The pipeline uses `mattpocock-skills` for `tdd`, `code-review` and `retro`, so i
 
 ## Set up your repo (once)
 
-The whole trick is that **only the reviewer reads the standards**. The plugin's hook stops the implementer opening them, but anything an agent auto-loads leaks them anyway, so:
+The whole trick is that **only the reviewer reads the standards**. The plugin's hook stops the implementer opening them, and the explorer and implementer run without any `CLAUDE.md` (`omitClaudeMd: true`). Files other tools auto-load still leak them, so:
 
 1. **Write your standards** in `coding_standards.md` at the repo root. The reviewer also reads `docs/agent/*.md`, `.specify/memory/constitution.md` and `CONTRIBUTING.md` if they exist.
 2. **Strip rules out of auto-loaded files**: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, `.cursorrules`. Keep project intro and run commands there; move the rules into `coding_standards.md`. Every run checks these files at the start and reports any leaks it finds; it never edits them.
-3. **Optional: override the agents.** Copy any of `plugins/explore-implement-review/agents/*.md` into your repo's `.claude/agents/` to hardcode your build commands or change the reviewer's sources. The skill prefers repo agents over the plugin's.
+3. **Optional: override the agents.** Copy any of `plugins/explore-implement-review/agents/*.md` into your repo's `.claude/agents/` to hardcode your build commands or change the reviewer's sources. The skill prefers repo agents over the plugin's. Plugin updates don't reach your copies: every run diffs each override against the plugin's version and reports any plugin instructions your copy is missing, so you can merge them in. Override only what you have to; the explorer already finds build and test commands.
 
 The skill's own Setup section has the full checklist, including Spec Kit.
 
@@ -120,9 +120,15 @@ GLOSSARY.md                              the pipeline's vocabulary
 
 **Does it work without `mattpocock-skills`?** The agents still run, but the implementer loses its TDD loop and the reviewer its two-axis review. Install it.
 
-**Can the implementer cheat and read the standards?** Not by accident. A `PreToolUse` hook denies the implementer any Read, Grep, Glob, Edit or Write on the standards files, and any Bash command that names them. It's a guardrail, not a sandbox: a Bash command that reaches them without naming them, or a repo-wide search that matches lines inside them, still gets through. Keeping standards out of auto-loaded files matters just as much, and the hook can't help there.
+**Can the implementer cheat and read the standards?** Not by accident. A `PreToolUse` hook denies the implementer any Read, Grep, Glob, Edit or Write on the standards files, and any Bash command that names them. It's a guardrail, not a sandbox: a Bash command that reaches them without naming them, or a repo-wide search that matches lines inside them, still gets through. Auto-loaded files are the other route. In Claude Code, the explorer and implementer set `omitClaudeMd: true`, so no user, project or local `CLAUDE.md` reaches them (your global instructions included); if you override either agent, keep that line. Files other tools auto-load, like `AGENTS.md` and `.github/copilot-instructions.md`, still need their rules stripped.
 
 **I added my own standards source. Is it guarded?** The hook only knows the four default sources. Add yours to the exclusion lists in your overridden `implementer.md` and `explorer.md`.
+
+**I installed or updated the plugin and the hook never fires.** Hooks load when a session starts. Restart Claude Code after installing or updating.
+
+**My working tree is full of line-ending changes.** Every run counts files whose only change is line endings and reports them. The reviewer diffs with `--ignore-cr-at-eol`, and the implementer stages only the files it changed for the task, so the churn stays out of the review and the commit. A `.gitattributes` with `* text=auto eol=lf` fixes it at the source.
+
+**The reviewer couldn't run the tests.** It runs the build and test commands itself, and when it can't (for example, a `node_modules` installed on Windows used from a Linux sandbox) it says so with the error rather than fixing the environment. The run report says whether the tests were checked by the reviewer or only reported by the implementer.
 
 **Will it push or open a PR?** No. It commits to your current branch and stops.
 

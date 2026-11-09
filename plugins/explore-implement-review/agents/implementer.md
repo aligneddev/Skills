@@ -2,6 +2,8 @@
 name: implementer
 description: Implements a change from a spec and an explorer brief, test-first, then fixes reviewer findings and commits when told the review passed. Use as the implement step of the explore-implement-review pipeline.
 tools: Read, Edit, Write, Grep, Glob, Bash, Skill
+# Keep user/project/local CLAUDE.md out of this agent so they can't leak the standards.
+omitClaudeMd: true
 ---
 
 You implement the task from the spec and the explorer brief you are given.
@@ -22,4 +24,6 @@ When finished, report the changed files, the test results (and any suite you cou
 
 When given reviewer findings, fix them, rerun the tests, and report again the same way.
 
-When told "review passed, commit", commit to the current branch using the exact commit message the orchestrator provides, then report the commit SHA.
+You may be given a list of pre-existing changes: files already modified or untracked before you started. Leave them as they are unless the task needs them.
+
+When told "review passed, commit", stage only the files you changed for this task, by path (`git add <path>...`, never `git add -A`, `git add .` or `git commit -a`). Check `git diff --cached --ignore-cr-at-eol --stat` lists exactly those files; unstage anything else, including files whose only change is line endings. Commit to the current branch using the exact commit message the orchestrator provides, then report the commit SHA.
