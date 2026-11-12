@@ -14,6 +14,7 @@ Reference: *Grokking Simplicity* (Eric Normand).
 - **P4** Immutable by default. Change data with copy-on-write and defensively copy what crosses a trust boundary. Persistence entities that an ORM requires to be mutable are mapped to immutable models at the boundary.
 - **P5** Avoid null. Represent absence or failure with a type (Result, union, option), not a null return. No null-forgiving or non-null assertions in new code.
 - **P6** Make illegal states unrepresentable: unions, closed hierarchies, or constructors that validate and return a Result.
+- **P8** Mappings over a closed set handle every member explicitly; an unreachable default throws. A catch-all default never silently stands in for one member.
 - **P7** Return expected outcomes (validation, business, conflict) as values; throw only for unexpected failures.
 
 ## Architecture
@@ -21,14 +22,14 @@ Reference: *Grokking Simplicity* (Eric Normand).
 - **A1** One kind of work per part (UI, domain, persistence, infrastructure); dependencies point inward only.
 - **A2** Define ports in inner layers; adapters live at the edge. Translate third-party types at the boundary; they never reach the domain.
 - **A3** Keep change-together code together; prefer composition over inheritance.
-- **A4** DRY applies to knowledge, not similar-looking lines. Extract shared logic once it has repeated, not before.
+- **A4** DRY applies to knowledge, not similar-looking lines. Extract shared logic once it has repeated, not before. A closed set of allowed values is knowledge: define it once and derive types, options and validation messages from it.
 - **A5** No speculative features, options or extension points (YAGNI).
 - **A6** New runtime paths emit structured logs, metrics and traces.
 
 ## Backend (C# / F#)
 
 - **B1** Nullable reference types enabled; no `null!` or `!` suppression.
-- **B2** Inject `TimeProvider` for "now"; never call `DateTime.Now`/`UtcNow` (enforce with BannedApiAnalyzers).
+- **B2** Inject `TimeProvider` for "now"; never call `DateTime.Now`/`UtcNow`, in tests and test helpers too (enforce with BannedApiAnalyzers).
 - **B3** Models and DTOs are `sealed record`s with positional or `init` properties and read-only collections; change them with `with`.
 - **B4** Services are `sealed` classes with primary constructors, registered in one composition root.
 - **B5** F# domain code uses discriminated unions, `Result<'T,'E>` and immutable records.
@@ -42,11 +43,12 @@ Reference: *Grokking Simplicity* (Eric Normand).
 - **F5** Function components only, one per file, named exports.
 - **F6** API types match the backend contracts; client validation mirrors the server's.
 - **F7** Meet WCAG 2.1 AA, design mobile-first, and use design tokens instead of hard-coded values.
-- **F8** Visual changes are checked in a real browser at desktop and phone width, with screenshots attached to the PR.
+- **F8** Visual changes are checked in a real browser at desktop and phone width, with screenshots attached to the PR. A screenshot of an error, loading or empty state is not evidence.
 
 ## Tests
 
 - **T1** Write the failing test first and show the failure before implementing.
+- **T6** Every new test fails against the code before the change. Tests that only check a value passes through a mocked transport, or that mock the module whose values they assert, do not count.
 - **T2** Test calculations with plain unit tests; test actions with real collaborators at the boundary rather than mocks where practical.
 - **T3** Control time and randomness through injected providers.
 - **T4** Bug fixes do not change existing tests unless the intended behavior changed.
@@ -67,5 +69,5 @@ Reference: *Grokking Simplicity* (Eric Normand).
 
 Each repo fills these in; keep them short.
 
-- **Known debt (do not copy):** existing violations by rule ID and path. Do not flag them unless the diff touches them, and never use them as precedent.
+- **Known debt (do not copy):** existing violations by rule ID and path. Do not flag them unless the diff touches them, and never use them as precedent: a new line that copies one is a must-fix finding.
 - **Verification commands:** the build, test, lint and format commands the reviewer expects to have passed.

@@ -19,7 +19,9 @@ Review `git diff --ignore-cr-at-eol <fixed-point>` (include uncommitted changes;
 
 Run the build and test commands yourself. If one can't run here (missing tools, platform-specific binaries such as a `node_modules` installed on another OS), don't repair the environment: record the command and the error, and treat the implementer's results for it as unverified.
 
-For each new or changed test, check that it would fail if the behaviour it covers were broken, e.g. that it asserts after async data loads rather than before. A test that passes either way is a Spec finding.
+Existing code is never precedent. A rule broken in a new or changed line is must-fix even when the code around it does the same; only untouched lines, and the standards' known-debt list, are exempt. Use **judgement call** only when the rule itself is ambiguous for this case, not to soften a clear breach.
+
+For each new or changed test, decide whether it would fail if the behaviour it covers were broken, e.g. that it asserts after async data loads rather than before. Common ways a test passes either way: it only checks that a value passes through a mocked transport (`fetch`, `JSON.stringify`), it mocks the module whose values it asserts, or the type checker rather than the test would catch the regression. Check the implementer's red-phase evidence for each test: a test it never saw fail is suspect. Every test that would pass either way is a must-fix Spec finding: strengthen it or delete it.
 
 Call the Skill tool with `mattpocock-skills:code-review` for its two axes (Standards, Spec). You cannot spawn subagents, so do both axes yourself, one after the other: Standards first, then Spec.
 
@@ -30,6 +32,8 @@ Output, per axis, a list of findings. Each finding has:
 - severity: **must-fix** or **judgement call**
 
 Write "no findings" for an empty axis.
+
+Then a test table, one row per new or changed test: `test name | fails if broken: YES/NO | why`.
 
 Then one line: `Tests: ran <commands>, <result>` or `Tests: not run, <command>: <error>`.
 

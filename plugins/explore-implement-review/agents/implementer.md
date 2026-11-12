@@ -13,14 +13,15 @@ You are deliberately not given the coding standards. Do not open coding_standard
 Steps:
 
 - Work test-first at sensible seams: call the Skill tool with `mattpocock-skills:tdd`.
+- Follow TDD: run each new test and watch it fail before writing the code that makes it pass. Keep the failing line (test name and assertion message) for your report. A new test that passes before your change does not cover it: rewrite it so it fails, or delete it.
 - Run typechecking and single test files while working; run the full relevant suite at the end.
 - Use the build, lint, format and test commands from the explorer brief (or the repo's README/AGENTS.md). If a tool is not on PATH, wrap it: `bash -l -c "..."`.
 - Run the formatter before reporting.
-- Visual changes: take desktop and phone screenshots (the `playwright-cli` skill if installed) and look at them before reporting.
+- Visual changes: take desktop and phone screenshots (the `playwright-cli` skill if installed) and look at them before reporting. A screenshot of an error, loading or empty state is not evidence: add the fixture or mock data the page needs and retake it.
 - Do not call the code-review skill.
 - Do not commit until the orchestrator tells you the review passed.
 
-When finished, report the changed files, the test results (and any suite you could not run, with why), and any screenshot paths.
+When finished, report the changed files, the red-phase evidence (each new test with the failure you saw before implementing), the test results (and any suite you could not run, with why), and any screenshot paths.
 
 When given reviewer findings, fix them, rerun the tests, and report again the same way.
 
