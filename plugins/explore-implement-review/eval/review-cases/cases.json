@@ -1,0 +1,49 @@
+{
+  "_doc": "Reviewer test set: diffs the reviewer already saw, with findings it should raise. Each prompt is the orchestrator's original reviewer prompt from that run. An expected finding is caught when one report item matches every regex in all_of and is must-fix (or, for kind=test, a test-table row marked NO). See review_cases.py.",
+  "cases": [
+    {
+      "id": "it1-gas-grade",
+      "source": "runs/it1-pipeline (plugin 1.3.0, reviewer passed it; the audit found the misses below)",
+      "base": "40af278e98db509dbfed5df0b477f9bc8d2663fe",
+      "head": "d956800c52e49e6efe26f5c2126d732376f05a65",
+      "prompt": "it1-gas-grade.prompt.md",
+      "expected_verdict": "CHANGES REQUESTED",
+      "expected": [
+        {
+          "id": "clock-in-test-helper",
+          "kind": "finding",
+          "why": "New SeedUserSettingsAsync helper sets UpdatedAtUtc = DateTime.UtcNow (B4/T3); 1.3.0 called it a judgement call because nearby helpers do the same.",
+          "all_of": ["RidesEndpointsSqliteIntegrationTests|SeedUserSettingsAsync", "UtcNow"]
+        },
+        {
+          "id": "pass-through-test-ridesService",
+          "kind": "test",
+          "why": "ridesService.test.ts 'getGasPrice sends grade=%s' only checks the grade passes through fetch; it passes on the old code.",
+          "all_of": ["ridesService\\.test|getGasPrice sends grade"]
+        },
+        {
+          "id": "pass-through-test-users-api",
+          "kind": "test",
+          "why": "users-api.test.ts 'saveUserSettings sends and returns gasGrade %s' only checks JSON.stringify passes the value through.",
+          "all_of": ["users-api\\.test|saveUserSettings sends"]
+        }
+      ]
+    },
+    {
+      "id": "it2-avg-speed-round2",
+      "source": "runs/it2-pipeline review round 2 (plugin 1.4.0, reviewer passed it; the audit found the miss below)",
+      "base": "e6e73f71431ded0f3e4ad2f2e37ba9381047503e",
+      "head": "4431fd5326621a8772a375055f5d490d6241accf",
+      "prompt": "it2-avg-speed-round2.prompt.md",
+      "expected_verdict": "CHANGES REQUESTED",
+      "expected": [
+        {
+          "id": "f11-null-type",
+          "kind": "finding",
+          "why": "Frontend type averageSpeedMph?: number while the API sends null (F11); 1.4.0 called it a judgement call because the neighbouring fields do the same.",
+          "all_of": ["ridesService\\.ts|history-page\\.helpers\\.ts|averageSpeedMph", "null"]
+        }
+      ]
+    }
+  ]
+}
