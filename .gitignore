@@ -1,0 +1,5 @@
+plugins/explore-implement-review/**/*.log
+plugins/explore-implement-review/eval/review-cases/
+plugins/explore-implement-review/eval/runs/
+plugins/explore-implement-review/eval/tasks/
+
